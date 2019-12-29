@@ -1,0 +1,80 @@
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "io.qameta.allure:allure-gradle:2.8.1"
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.2.3.BUILD-SNAPSHOT'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.qameta.allure'
+
+group = 'com.eug'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework:spring-web'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    compile group: 'io.qameta.allure', name: 'allure-testng', version: '2.12.1'
+    compile group: 'io.qameta.allure', name: 'allure-spring-web', version: '2.13.1'
+
+    compile group: 'org.testng', name: 'testng', version: '6.14.3'
+    compile group: 'org.assertj', name: 'assertj-core', version: '3.13.0'
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+//test {
+//    useJUnitPlatform()
+//}
+
+
+allure {
+    version = '2.12.1'
+    autoconfigure = true
+}
+
+test {
+    useTestNG()
+    testLogging.showStandardStreams = true
+    options.suites("src/test/resources/TestSuite.xml")
+    scanForTestClasses = false
+    ignoreFailures = true
+    systemProperties(System.getProperties())
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
